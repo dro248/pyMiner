@@ -9,7 +9,7 @@ pip install -r requirements.txt
 
 ##Usage
 ```bash
-./miner.py -n NUMBER_OF_SEARCHES -e EMAIL_ADDRESS -p PASSWORD
+./miner.py -n NUMBER_OF_SEARCHES -e EMAIL_ADDRESS
 ```
 
 ##Development
