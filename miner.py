@@ -34,7 +34,7 @@ def main(argv=None):
     emailbox.send_keys(Keys.RETURN)
 
     # wait for next textbox to show up
-    time.sleep(5)
+    time.sleep(3)
     passwordbox = driver.find_element_by_id("i0118")
     passwordbox.send_keys(PASSWORD)
     passwordbox.send_keys(Keys.RETURN)
@@ -50,7 +50,7 @@ def main(argv=None):
         search_box.send_keys(Keys.RETURN)
 
         # wait a few seconds
-        time.sleep(3)
+        time.sleep(random.randint(2,6))
 
 if __name__ == "__main__":
     main()
