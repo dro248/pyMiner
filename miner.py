@@ -6,14 +6,21 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import *
 import random, sys
 import time
+import argparse
+import logging
 
+def parse_options():
+    parser = argparse.ArgumentParser(prog="pyMiner", description="Searches BING with your account!", add_help=True)
+    parser.add_argument("-n", "--number", action="store", type=int, help="The number of searches to do.", default=10)
+    parser.add_argument("-e", "--email", action="store", help="Microsoft Live account email", required=True)
+    parser.add_argument("-p", "--password", action="store", help="Account Password", required=True)
+    return parser.parse_args()
 
 def main(argv=None):
-    if argv is None:
-        argv = sys.argv
+    args = parse_options()
 
-    EMAIL = argv[2]
-    PASSWORD = argv[3]
+    EMAIL = args.email
+    PASSWORD = args.password
 
     # Dependencies
     chromeDriverLocation = "./chromedriver"
@@ -36,7 +43,7 @@ def main(argv=None):
 
     driver.get("http://www.bing.com")
 
-    for i in range(0,int(argv[1])):
+    for i in range(0,int(args.number)):
         search_box = driver.find_element_by_id("sb_form_q")
         search_box.clear()
         search_box.send_keys(random.choice(words))
