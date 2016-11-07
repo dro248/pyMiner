@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 import os
 from selenium import webdriver
@@ -51,7 +50,7 @@ def main():
     PASSWORD = getpass.getpass() if args.password == None else args.password
 
     # Dependencies
-    chromeDriverLocation = "./chromedriver"
+    chromeDriverLocation = "./chromedriver_win32/chromedriver.exe"
     driver = webdriver.Chrome(chromeDriverLocation)
     words = [line.strip() for line in open("wordsenglish.txt")] # delete later
 
