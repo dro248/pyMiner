@@ -1,28 +1,28 @@
 # PyMiner
 
-Linux
+##Linux
 --------
-##Installation
+###Installation
 The *requirements.txt* contains the necessary dependencies needed for the project.
 To import them directly from the file, use:
 ```bash
 pip install -r requirements.txt
 ```
 
-##Usage
+###Usage
 ```bash
 ./miner.py -n NUMBER_OF_SEARCHES -e EMAIL_ADDRESS
 ```
 
-##Development
+###Development
 In order to keep the *requirements.txt* dependencies file up-to-date, if a new package is required, use:
 ```bash
 pip freeze > requirements.txt
 ```
 ==================
-Windows
+##Windows
 ---------
-##Installation
+###Installation
 **Requirements:**
 - Must have Python2 installed.
 - Must have Python2 and Pip added to your system path.
@@ -30,7 +30,7 @@ Windows
 pip install selenium
 ```
 
-##Usage
+###Usage
 ```
 python .\miner.py -n NUMBER_OF_SEARCHES -e EMAIL_ADDRESS
 ```
