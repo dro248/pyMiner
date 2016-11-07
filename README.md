@@ -1,5 +1,4 @@
 # PyMiner
-==================
 
 Linux
 --------
@@ -20,7 +19,7 @@ In order to keep the *requirements.txt* dependencies file up-to-date, if a new p
 ```bash
 pip freeze > requirements.txt
 ```
-
+==================
 Windows
 ---------
 ##Installation
