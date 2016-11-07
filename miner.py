@@ -62,7 +62,7 @@ def main():
     emailbox.send_keys(Keys.RETURN)
 
     # wait for next textbox to show up
-    time.sleep(3)
+    time.sleep(1)
     passwordbox = driver.find_element_by_id("i0118")
     passwordbox.send_keys(PASSWORD)
     passwordbox.send_keys(Keys.RETURN)
