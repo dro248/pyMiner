@@ -8,8 +8,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-import subprocess
-#import mobileMiner
+# mobile
+from selenium.webdriver.chrome.options import Options
+opts = Options()
 
 import random, sys
 import time
@@ -29,17 +30,16 @@ def parse_options():
     parser.add_argument("-p", "--password", action="store", help="Account Password")
     return parser.parse_args()
 
-def get_current_points(myDriver):
+def get_mobile_points(myDriver):
     try:
-        pointsElement = WebDriverWait(myDriver, 50)\
-            .until(EC.presence_of_element_located((By.ID, "id_rc")))
+        pointsElement = WebDriverWait(myDriver, 20)\
+            .until(EC.presence_of_element_located((By.ID, "fly_id_rc")))
 
         points = pointsElement.get_attribute("innerHTML")
         logging.info("you have %s points" % points)
         return int(points)
     except:
-        # logging.error("Error: points not found!") --> this always prints and is almost never an error.
-        return
+        logging.error("Error: points not found! Are you crendentials legit?")
 
 def main():
     args = parse_options()
@@ -55,10 +55,13 @@ def main():
 
     # Dependencies
     chromeDriverLocation = "./chromedriver"
-    driver = webdriver.Chrome(chromeDriverLocation)
+    # driver = webdriver.Chrome(chromeDriverLocation)
+    opts.add_argument("user-agent='Mozilla/5.0 (Linux; <Android Version>; <Build Tag etc.>) AppleWebKit/<WebKit Rev> (KHTML, like Gecko) Chrome/<Chrome Rev> Mobile Safari/<WebKit Rev>'")
+    driver = webdriver.Chrome(chromeDriverLocation, chrome_options=opts)
     words = [line.strip() for line in open("wordsenglish.txt")] # delete later
 
     # login
+    print "logging in"
     driver.get("https://login.live.com/")
     emailbox = driver.find_element_by_id("i0116")
     emailbox.send_keys(EMAIL)
@@ -71,13 +74,15 @@ def main():
     passwordbox.send_keys(Keys.RETURN)
 
     # time.sleep(5)
-
+    print "goto bing.com"
     driver.get("http://www.bing.com")
     
     # get current number of points
-    logging.debug("getting current number of points...")
-    current_pts = get_current_points(driver)
+    print "Mobile: getting current number of points..."
+    logging.debug("Mobile: getting current number of points...")
+    current_pts = get_mobile_points(driver)
 
+    print "searching..."
     for i in range(0,int(args.number)):
         search_box = driver.find_element_by_id("sb_form_q")
         search_box.clear()
@@ -87,16 +92,12 @@ def main():
         # wait a random number of seconds
         time.sleep(random.randint(2,6))
 
-        new_pts = get_current_points(driver)
+        new_pts = get_mobile_points(driver)
         if new_pts == current_pts:
-            # logging.warn("No points gained with latest search.\nQuitting...")
-            logging.warn("No points gained with latest search.\nStarting Mobile Search...")
+            logging.warn("No points gained with latest search.\nQuitting...")
             break
         else:
             current_pts = new_pts
-
-    driver.close()
-    os.system('./mobileMiner.py -d -v -n ' + str(args.number) + ' -e ' + EMAIL + ' -p ' + PASSWORD)
 
 if __name__ == "__main__":
     main()
