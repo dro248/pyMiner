@@ -33,3 +33,6 @@ pip install selenium
 ```
 python .\miner.py -n NUMBER_OF_SEARCHES -e EMAIL_ADDRESS
 ```
+
+###Secret Link to adding Amazon Gift Card as goal (it is not posted)
+https://account.microsoft.com/rewards/redeem/000800000000 (login required)
