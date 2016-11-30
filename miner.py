@@ -85,7 +85,7 @@ def main():
         search_box.send_keys(Keys.RETURN)
 
         # wait a random number of seconds
-        time.sleep(random.randint(2,6))
+        time.sleep(random.randint(5,10))
 
         new_pts = get_current_points(driver)
         if new_pts == current_pts:
