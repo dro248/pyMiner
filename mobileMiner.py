@@ -8,6 +8,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+from pyvirtualdisplay import Display
+
+display = Display(visible=0, size=(800, 600))
+display.start()
+
 # mobile
 from selenium.webdriver.chrome.options import Options
 opts = Options()
@@ -39,7 +44,8 @@ def get_mobile_points(myDriver):
         logging.info("you have %s points" % points)
         return int(points)
     except:
-        logging.error("Error: points not found! Are you crendentials legit?")
+        #logging.error("Error: points not found! Are you crendentials legit?")
+        pass
 
 def main():
     args = parse_options()
@@ -53,15 +59,18 @@ def main():
     EMAIL = args.email
     PASSWORD = getpass.getpass() if args.password == None else args.password
 
+
+    logging.info("Mobile Search:\n")
+
     # Dependencies
     chromeDriverLocation = "./chromedriver"
     # driver = webdriver.Chrome(chromeDriverLocation)
     opts.add_argument("user-agent='Mozilla/5.0 (Linux; <Android Version>; <Build Tag etc.>) AppleWebKit/<WebKit Rev> (KHTML, like Gecko) Chrome/<Chrome Rev> Mobile Safari/<WebKit Rev>'")
+    opts.add_argument("--disable-javascript")
     driver = webdriver.Chrome(chromeDriverLocation, chrome_options=opts)
     words = [line.strip() for line in open("wordsenglish.txt")] # delete later
 
     # login
-    print "logging in"
     driver.get("https://login.live.com/")
     emailbox = driver.find_element_by_id("i0116")
     emailbox.send_keys(EMAIL)
@@ -74,23 +83,25 @@ def main():
     passwordbox.send_keys(Keys.RETURN)
 
     # time.sleep(5)
-    print "goto bing.com"
     driver.get("http://www.bing.com")
     
     # get current number of points
-    print "Mobile: getting current number of points..."
-    logging.debug("Mobile: getting current number of points...")
+    logging.info("Mobile: getting current number of points...")
     current_pts = get_mobile_points(driver)
 
-    print "searching..."
     for i in range(0,int(args.number)):
-        search_box = driver.find_element_by_id("sb_form_q")
-        search_box.clear()
-        search_box.send_keys(random.choice(words))
-        search_box.send_keys(Keys.RETURN)
+        try:
+            search_box = driver.find_element_by_id("sb_form_q")
+            search_box.clear()
+            search_box.send_keys(random.choice(words))
+            search_box.send_keys(Keys.RETURN)
 
-        # wait a random number of seconds
-        time.sleep(random.randint(5,10))
+            # wait a random number of seconds
+            time.sleep(random.randint(5,15))
+        except:
+            logging.info("Caught GPS alert")
+            driver.get("http://www.bing.com")
+
 
         new_pts = get_mobile_points(driver)
         if new_pts == current_pts:
@@ -98,6 +109,9 @@ def main():
             break
         else:
             current_pts = new_pts
+
+    driver.close()
+    display.stop()
 
 if __name__ == "__main__":
     main()

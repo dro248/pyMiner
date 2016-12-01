@@ -8,6 +8,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+from pyvirtualdisplay import Display
+
+display = Display(visible=0, size=(800, 600))
+display.start()
+
 import subprocess
 #import mobileMiner
 
@@ -27,6 +32,7 @@ def parse_options():
     parser.add_argument("-n", "--number", action="store", type=int, help="The number of searches to do.", default=10)
     parser.add_argument("-e", "--email", action="store", help="Microsoft Live account email", required=True)
     parser.add_argument("-p", "--password", action="store", help="Account Password")
+    #TODO: add argument for toggling show/hide display
     return parser.parse_args()
 
 def get_current_points(myDriver):
@@ -75,6 +81,7 @@ def main():
     driver.get("http://www.bing.com")
     
     # get current number of points
+    logging.info("Desktop Search:\n")
     logging.debug("getting current number of points...")
     current_pts = get_current_points(driver)
 
@@ -85,17 +92,19 @@ def main():
         search_box.send_keys(Keys.RETURN)
 
         # wait a random number of seconds
-        time.sleep(random.randint(5,10))
+        time.sleep(random.randint(5,15))
 
         new_pts = get_current_points(driver)
         if new_pts == current_pts:
             # logging.warn("No points gained with latest search.\nQuitting...")
-            logging.warn("No points gained with latest search.\nStarting Mobile Search...")
+            logging.info("No points gained with latest search.\n")
             break
         else:
             current_pts = new_pts
 
     driver.close()
+    display.stop()
+    
     os.system('./mobileMiner.py -d -v -n ' + str(args.number) + ' -e ' + EMAIL + ' -p ' + PASSWORD)
 
 if __name__ == "__main__":
