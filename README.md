@@ -5,6 +5,7 @@
 The *requirements.txt* contains the necessary dependencies needed for the project.
 To import them directly from the file, use:
 ```bash
+sudo apt-get install xvfb
 pip install -r requirements.txt
 ```
 
