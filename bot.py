@@ -71,6 +71,8 @@ class Bot():
         search_box.clear()
         search_box.send_keys(random.choice(self.words))
         search_box.send_keys(Keys.RETURN)
+        
+        time.sleep(1)
 
         new_pts = self.get_current_points("id_rc")
         data.round(new_pts)
@@ -99,6 +101,7 @@ class Bot():
             message = template.format(type(ex).__name__, ex.args)
             return True
 
+        time.sleep(1)
         new_pts = self.get_current_points("fly_id_rc")
         data.round(new_pts)
         if new_pts == self.current_pts:
