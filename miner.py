@@ -1,112 +1,79 @@
 #!/usr/bin/env python
 
-import os
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import *
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
-from pyvirtualdisplay import Display
-
-display = Display(visible=0, size=(800, 600))
-display.start()
-
-import subprocess
-#import mobileMiner
-
-import random, sys
-import time
 import argparse
 import logging
 import getpass
+import random, time
 
-# for debugging --> use bp() as breakpoint
+from stats import Stats
+from bot import Bot
 from pdb import set_trace as bp
 
 def parse_options():
     parser = argparse.ArgumentParser(prog="pyMiner", description="Searches BING with your account!", add_help=True)
     parser.add_argument("-d", "--debug", action="store_true", help="Enable debug level logging. A toooon of stuff from selenium gets logged btw.")
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable info level logging")
-    parser.add_argument("-n", "--number", action="store", type=int, help="The number of searches to do.", default=10)
+    parser.add_argument("-n", "--number", action="store", type=int, help="The number of searches to do.", default=100)
     parser.add_argument("-e", "--email", action="store", help="Microsoft Live account email", required=True)
     parser.add_argument("-p", "--password", action="store", help="Account Password")
-    #TODO: add argument for toggling show/hide display
+    parser.add_argument("-j", "--json", action="store_true", help="Enables json output with process information for easy parsing after the fact")
+    parser.add_argument("-s", "--show", action="store_true", help="Shows the display")
     return parser.parse_args()
 
-def get_current_points(myDriver):
-    try:
-        pointsElement = WebDriverWait(myDriver, 50)\
-            .until(EC.presence_of_element_located((By.ID, "id_rc")))
-
-        points = pointsElement.get_attribute("innerHTML")
-        logging.info("you have %s points" % points)
-        return int(points)
-    except:
-        # logging.error("Error: points not found!") --> this always prints and is almost never an error.
-        return
+def configure_output(args):
+    """ Returns whether the program should create json output or do normal logging """
+    if args.json:
+        logging.basicConfig(level=logging.ERROR)
+        return True
+    elif args.verbose:
+        logging.basicConfig(level=logging.INFO)
+    else:
+        logging.basicConfig(level=logging.DEBUG if args.debug else logging.WARN)
+    return False
 
 def main():
     args = parse_options()
-    
-    if args.verbose:
-        logging.basicConfig(level=logging.INFO)
-    else:
-        # default log level is WARN
-        logging.basicConfig(level=logging.DEBUG if args.debug else logging.WARN)
+    store_info = configure_output(args)
+    password = getpass.getpass() if args.password == None else args.password
 
-    EMAIL = args.email
-    PASSWORD = getpass.getpass() if args.password == None else args.password
+    bot = Bot(args.show)
+    logging.info("Desktop mode")
+    bot.desktop()
+    bot.login(args.email, password)
 
-    # Dependencies
-    chromeDriverLocation = "./chromedriver"
-    driver = webdriver.Chrome(chromeDriverLocation)
-    words = [line.strip() for line in open("wordsenglish.txt")] # delete later
+    data = Stats(store_info)
+    data.start(bot.desktop_initial_points() or 0)
+    data.set_title("Bing Desktop Browser")
+    bot.bing()
 
-    # login
-    driver.get("https://login.live.com/")
-    emailbox = driver.find_element_by_id("i0116")
-    emailbox.send_keys(EMAIL)
-    emailbox.send_keys(Keys.RETURN)
-
-    # wait for next textbox to show up
-    time.sleep(1)
-    passwordbox = driver.find_element_by_id("i0118")
-    passwordbox.send_keys(PASSWORD)
-    passwordbox.send_keys(Keys.RETURN)
-
-    # time.sleep(5)
-
-    driver.get("http://www.bing.com")
-    
-    # get current number of points
-    logging.info("Desktop Search:\n")
-    logging.debug("getting current number of points...")
-    current_pts = get_current_points(driver)
-
-    for i in range(0,int(args.number)):
-        search_box = driver.find_element_by_id("sb_form_q")
-        search_box.clear()
-        search_box.send_keys(random.choice(words))
-        search_box.send_keys(Keys.RETURN)
-
-        # wait a random number of seconds
-        time.sleep(random.randint(5,15))
-
-        new_pts = get_current_points(driver)
-        if new_pts == current_pts:
-            # logging.warn("No points gained with latest search.\nQuitting...")
-            logging.info("No points gained with latest search.\n")
+    for i in range(0,args.number):
+        if not bot.desktop_miner(data):
             break
-        else:
-            current_pts = new_pts
+        sleep_time = random.randint(5,15)
+        logging.info("sleeping %i" % sleep_time)
+        data.sleep(sleep_time)
+        time.sleep(sleep_time)
 
-    driver.close()
-    display.stop()
-    
-    os.system('./mobileMiner.py -d -v -n ' + str(args.number) + ' -e ' + EMAIL + ' -p ' + PASSWORD)
+    logging.info("Mobile mode")
+    bot.mobile()
+    bot.login(args.email, password)
 
+    for i in range(0,args.number):
+        if not bot.mobile_miner(data):
+            break
+        sleep_time = random.randint(5,15)
+        logging.info("sleeping %i" % sleep_time)
+        data.sleep(sleep_time)
+        time.sleep(sleep_time)
+
+    bot.finish()
+
+    if store_info:
+        print data.done()
+ 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logging.info("Caught Keyboard Interrupt. Exiting.")
 

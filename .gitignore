@@ -1,3 +1,5 @@
 env/
 geckodriver.log
 *.swp
+*.pyc
+
