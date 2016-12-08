@@ -14,11 +14,15 @@ import stats
 from pdb import set_trace as bp
 
 class Bot():
-    def __init__(self, show=False):
+    def __init__(self, show, search_term_file):
         self.driver = None
         self.show = show
         self.chromeDriverLocation = "./chromedriver"
-        self.words = [line.strip() for line in open("wordsenglish.txt")]
+        try:
+            self.words = [line.strip() for line in open(search_term_file)]
+        except IOError:
+            logging.error("Error Tryna Open: %s" % search_term_file)
+            sys.exit()
         if not self.show:
             self.display = Display(visible=0, size=(800, 600))
             self.display.start()
@@ -46,7 +50,9 @@ class Bot():
 
     def desktop_initial_points(self):
         """ Gets the points from the screen immediately following the login screen """
-        self.current_pts = int(self.driver.find_element_by_class_name("primary-text").get_attribute("innerHTML"))
+        points_str = self.driver.find_element_by_class_name("primary-text").get_attribute("innerHTML")
+        points_str = points_str.replace(",","").replace(".","")
+        self.current_pts = int(points_str)
         return self.current_pts
 
     def login(self, EMAIL, PASSWORD):
@@ -71,7 +77,7 @@ class Bot():
         search_box.clear()
         search_box.send_keys(random.choice(self.words))
         search_box.send_keys(Keys.RETURN)
-        
+    
         time.sleep(1)
 
         new_pts = self.get_current_points("id_rc")

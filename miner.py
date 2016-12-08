@@ -18,6 +18,7 @@ def parse_options():
     parser.add_argument("-p", "--password", action="store", help="Account Password")
     parser.add_argument("-j", "--json", action="store_true", help="Enables json output with process information for easy parsing after the fact")
     parser.add_argument("-s", "--show", action="store_true", help="Shows the display")
+    parser.add_argument("-f", "--file", action="store", help="The File of Search Terms", default="./wordsenglish.txt")
     return parser.parse_args()
 
 def configure_output(args):
@@ -36,7 +37,7 @@ def main():
     store_info = configure_output(args)
     password = getpass.getpass() if args.password == None else args.password
 
-    bot = Bot(args.show)
+    bot = Bot(args.show, args.file)
     logging.info("Desktop mode")
     bot.desktop()
     bot.login(args.email, password)
@@ -76,4 +77,6 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         logging.info("Caught Keyboard Interrupt. Exiting.")
+    except:
+        logging.error("Web Driver Is probably closed. Exiting")
 
