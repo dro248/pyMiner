@@ -23,7 +23,7 @@ class Stats():
         self.title = title
 
     def sleep(self, seconds):
-        """ uses invocations of this sleep method as the count of rounds 
+        """ uses invocations of this sleep method as the count of rounds
             sleep_total used to generate average sleep time
         """
         self.sleep_total += seconds
@@ -61,4 +61,3 @@ class Stats():
 
     def get_json(self):
         return json.dumps(self.data)
-

@@ -50,34 +50,51 @@ class Bot():
 
     def desktop_initial_points(self):
         """ Gets the points from the screen immediately following the login screen """
-        points_str = self.driver.find_element_by_class_name("primary-text").get_attribute("innerHTML")
+        try:
+            points_str = self.driver.find_element_by_class_name("primary-text").get_attribute("innerHTML")
+        except NoSuchElementException as e:
+            logging.info("Could not find the initial points string")
+            points_str = "0"
         points_str = points_str.replace(",","").replace(".","")
         self.current_pts = int(points_str)
         return self.current_pts
 
+    def type(self, element, text):
+        try:
+            logging.debug(text)
+            for ch in text:
+                element.send_keys(ch)
+                time.sleep(.05)
+        except Exception as e:
+            logging.debug("Caught Exception: %s" % str(e))
+            sys.exit(1)
+
     def login(self, EMAIL, PASSWORD):
         self.driver.get("https://login.live.com/")
         emailbox = self.driver.find_element_by_id("i0116")
-        emailbox.send_keys(EMAIL)
+        self.type(emailbox, EMAIL)
         emailbox.send_keys(Keys.RETURN)
 
         # wait for next textbox to show up
         time.sleep(1)
         passwordbox = self.driver.find_element_by_id("i0118")
-        passwordbox.send_keys(PASSWORD)
+        self.type(passwordbox, PASSWORD)
         passwordbox.send_keys(Keys.RETURN)
 
     def bing(self):
         if self.driver is not None:
             self.driver.get("http://www.bing.com")
+        else:
+            logging.info("No driver defined. Exiting.")
+            sys.exit(1)
 
     def desktop_miner(self, data):
         """ Returns whether the points changed """
         search_box = self.driver.find_element_by_id("sb_form_q")
         search_box.clear()
-        search_box.send_keys(random.choice(self.words))
+        self.type(search_box,random.choice(self.words))
         search_box.send_keys(Keys.RETURN)
-    
+
         time.sleep(1)
 
         new_pts = self.get_current_points("id_rc")
@@ -98,7 +115,7 @@ class Bot():
         try:
             search_box = self.driver.find_element_by_id("sb_form_q")
             search_box.clear()
-            search_box.send_keys(random.choice(self.words))
+            self.type(search_box,random.choice(self.words))
             search_box.send_keys(Keys.RETURN)
         except Exception as ex:
             logging.info("Caught GPS alert")
@@ -136,4 +153,3 @@ class Bot():
         except ValueError:
             logging.error("Issue converting value:[%s] to int." %  str(points))
             return 0
-
