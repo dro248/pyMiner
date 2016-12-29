@@ -26,14 +26,11 @@ def parse_options():
 
 def configure_output(args):
     """ Returns whether the program should print json output or do normal logging """
-    if args.json:
-        logging.basicConfig(level=logging.ERROR)
-        return True
-    elif args.verbose:
+    if args.verbose:
         logging.basicConfig(level=logging.INFO)
     else:
         logging.basicConfig(level=logging.DEBUG if args.debug else logging.WARN)
-    return False
+    return args.json
 
 def getCredentials(account, args):
     email = account.get("email") or args.email or raw_input("Email: ")
@@ -110,8 +107,8 @@ def main():
     except KeyboardInterrupt:
         logging.info("Caught Keyboard Interrupt. Exiting.")
     except Exception as e:
-        logging.error("Error. Use -d for more details.")
-        logging.debug("Exception Message: %s" % traceback.format_exc())
+        logging.error("Error. Use -v for more details.")
+        logging.info("Exception Message: %s" % traceback.format_exc())
 
 if __name__ == "__main__":
     main()

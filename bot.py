@@ -4,6 +4,7 @@ from selenium.common.exceptions import *
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.alert import Alert
 from pyvirtualdisplay import Display
 from selenium.webdriver.chrome.options import Options
 import random, sys
@@ -61,12 +62,12 @@ class Bot():
 
     def type(self, element, text):
         try:
-            logging.debug(text)
+            logging.info(text)
             for ch in text:
                 element.send_keys(ch)
                 time.sleep(.05)
         except Exception as e:
-            logging.debug("Caught Exception: %s" % str(e))
+            logging.info("Caught Exception: %s" % str(e))
             sys.exit(1)
 
     def login(self, EMAIL, PASSWORD):
@@ -82,11 +83,18 @@ class Bot():
         passwordbox.send_keys(Keys.RETURN)
 
     def bing(self):
-        if self.driver is not None:
-            self.driver.get("http://www.bing.com")
-        else:
-            logging.info("No driver defined. Exiting.")
-            sys.exit(1)
+        success = False
+        while not success:
+            try:
+                if self.driver is not None:
+                    self.driver.get("http://www.bing.com")
+                    success = True
+                else:
+                    logging.info("No driver defined. Exiting.")
+                    sys.exit(1)
+            except UnexpectedAlertPresentException as (e, msg):
+                logging.info("bing function caught alert")
+                self.handlealert(e,msg)
 
     def desktop_miner(self, data):
         """ Returns whether the points changed """
@@ -117,11 +125,15 @@ class Bot():
             search_box.clear()
             self.type(search_box,random.choice(self.words))
             search_box.send_keys(Keys.RETURN)
-        except Exception as ex:
+        except UnexpectedAlertPresentException as ex:
             logging.info("Caught GPS alert")
-            self.driver.get("http://www.bing.com")
             template = "An exception of type {0} occured. Arguments:\n{1!r}"
+            self.handlealert()
             message = template.format(type(ex).__name__, ex.args)
+            logging.info(message)
+        except NoSuchElementException, e:
+            logging.info("Search box not found in mobile. continuing.")
+            self.bing()
             return True
 
         time.sleep(1)
@@ -153,3 +165,11 @@ class Bot():
         except ValueError:
             logging.error("Issue converting value:[%s] to int." %  str(points))
             return 0
+        except Exception, e:
+            logging.error("Unknown exception getting current points %s" % str(e))
+            return 0
+
+    # untested
+    def handlealert(self, e, msg=None):
+        Alert(self.driver).dismiss()
+
