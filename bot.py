@@ -127,7 +127,7 @@ class Bot():
         except UnexpectedAlertPresentException as ex:
             logging.info("Caught GPS alert")
             template = "An exception of type {0} occured. Arguments:\n{1!r}"
-            self.handlealert()
+            self.handlealert(ex)
             message = template.format(type(ex).__name__, ex.args)
             logging.info(message)
         except NoSuchElementException, e:
