@@ -98,7 +98,7 @@ def main():
             for i,account in enumerate(accounts):
                 mine(args, store_info, data, account)
         else:
-            mine(args, store_info)
+            mine(args, store_info, data)
         if args.json:
             print data.get_json()
     except IOError:
