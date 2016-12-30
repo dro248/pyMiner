@@ -37,7 +37,7 @@ def getCredentials(account, args):
     password = account.get("password") or args.password or getpass.getpass(prompt="Password for \"%s\": " % email)
     return (email, password)
 
-def mine(args, store_info, account={}):
+def mine(args, store_info, data, account={}):
     """
     @param account json { email: "", password: ""}
     """
@@ -55,9 +55,7 @@ def mine(args, store_info, account={}):
     bot.desktop()
     bot.login(email, password)
 
-    data = Stats(store_info)
-    data.start(bot.desktop_initial_points() or 0)
-    data.set_title(email)
+    data.start(bot.desktop_initial_points() or 0, email)
     logging.info("Starting points: %i" % data.initial_points)
     bot.bing()
 
@@ -81,10 +79,8 @@ def mine(args, store_info, account={}):
         data.sleep(sleep_time)
         time.sleep(sleep_time)
 
+    data.done()
     bot.finish()
-
-    if store_info:
-        print data.done()
 
 def getaccounts(args):
     filename = args.accounts
@@ -96,12 +92,15 @@ def main():
     args = parse_options()
     try:
         store_info = configure_output(args)
+        data = Stats()
         if (args.accounts != None):
             accounts = getaccounts(args)
-            for account in accounts:
-                mine(args, store_info, account)
+            for i,account in enumerate(accounts):
+                mine(args, store_info, data, account)
         else:
             mine(args, store_info)
+        if args.json:
+            print data.get_json()
     except IOError:
         logging.error("bad account filename")
     except KeyboardInterrupt:

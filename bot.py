@@ -62,7 +62,6 @@ class Bot():
 
     def type(self, element, text):
         try:
-            logging.info(text)
             for ch in text:
                 element.send_keys(ch)
                 time.sleep(.05)
@@ -172,4 +171,3 @@ class Bot():
     # untested
     def handlealert(self, e, msg=None):
         Alert(self.driver).dismiss()
-
