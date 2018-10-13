@@ -33,7 +33,7 @@ def configure_output(args):
     return args.json
 
 def getCredentials(account, args):
-    email = account.get("email") or args.email or raw_input("Email: ")
+    email = account.get("email") or args.email or input("Email: ")
     password = account.get("password") or args.password or getpass.getpass(prompt="Password for \"%s\": " % email)
     return (email, password)
 
@@ -100,7 +100,7 @@ def main():
         else:
             mine(args, store_info, data)
         if args.json:
-            print data.get_json()
+            print(data.get_json())
     except IOError:
         logging.error("bad account filename")
     except KeyboardInterrupt:
