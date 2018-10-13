@@ -91,9 +91,9 @@ class Bot():
                 else:
                     logging.info("No driver defined. Exiting.")
                     sys.exit(1)
-            except UnexpectedAlertPresentException as (e, msg):
+            except UnexpectedAlertPresentException as e:
                 logging.info("bing function caught alert")
-                self.handlealert(e,msg)
+                self.handlealert(e,"")
 
     def desktop_miner(self, data):
         """ Returns whether the points changed """
@@ -130,7 +130,7 @@ class Bot():
             self.handlealert(ex)
             message = template.format(type(ex).__name__, ex.args)
             logging.info(message)
-        except NoSuchElementException, e:
+        except NoSuchElementException as e:
             logging.info("Search box not found in mobile. continuing.")
             self.bing()
             return True
@@ -164,7 +164,7 @@ class Bot():
         except ValueError:
             logging.error("Issue converting value:[%s] to int." %  str(points))
             return 0
-        except Exception, e:
+        except Exception as e:
             logging.error("Unknown exception getting current points %s" % str(e))
             return 0
 
